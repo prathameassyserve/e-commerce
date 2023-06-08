@@ -1,5 +1,7 @@
 import 'package:e_commerce/constants.dart';
 import 'package:e_commerce/generated/assets.dart';
+import 'package:e_commerce/routs.dart';
+import 'package:e_commerce/theme.dart';
 import 'package:e_commerce/ui/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -15,16 +17,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'E-Commerce',
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        fontFamily: "Muli",
-        textTheme: TextTheme(
-          bodyText1: TextStyle(color: kTextColor),
-          bodyText2: TextStyle(color: kTextColor),
-        ),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: SplashScreen(),
+      theme: theme(),
+      //home: SplashScreen(),
+      initialRoute: SplashScreen.routName,
+      routes: routes,
     );
   }
 }

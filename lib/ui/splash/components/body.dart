@@ -1,8 +1,11 @@
+import 'package:e_commerce/components/default_button.dart';
 import 'package:e_commerce/constants.dart';
 import 'package:e_commerce/generated/assets.dart';
 import 'package:e_commerce/pojo/splash_data.dart';
 import 'package:e_commerce/size_config.dart';
+import 'package:e_commerce/ui/sign_in/sign_in.dart';
 import 'package:e_commerce/ui/splash/components/splash_content.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class Body extends StatefulWidget {
@@ -13,6 +16,7 @@ class Body extends StatefulWidget {
 }
 
 class _BodyState extends State<Body> {
+  late PageController _pageController;
   int currentPage = 0;
 
   List<SplashData> splashData = [
@@ -20,6 +24,19 @@ class _BodyState extends State<Body> {
     SplashData(text: kWeHelpPeople, image: Assets.imagesSplash2),
     SplashData(text: kWeShowTheEasyWay, image: Assets.imagesSplash3),
   ];
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _pageController.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: currentPage);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +48,17 @@ class _BodyState extends State<Body> {
             Expanded(
               flex: 3,
               child: PageView.builder(
+                controller: _pageController,
                 itemCount: splashData.length,
-                itemBuilder: (context, index) => SplashContent(
-                  text: splashData[index].text,
-                  image: splashData[index].image,
-                ),
+                itemBuilder: (context, index) =>
+                    SplashContent(
+                      text: splashData[index].text,
+                      image: splashData[index].image,
+                    ),
                 onPageChanged: (value) {
                   setState(() {
                     currentPage = value;
+                    buildPageController();
                   });
                 },
               ),
@@ -55,14 +75,24 @@ class _BodyState extends State<Body> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(
                         splashData.length,
-                        (index) => buildDots(position: index),
+                            (index) => buildDots(position: index),
                       ),
                     ),
                     Spacer(flex: 2),
                     DefaultButton(
-                      buttonName: kContinue,
+                      buttonName: currentPage == splashData.length - 1
+                          ? kContinue
+                          : kNext,
                       press: () {
-                        print("-->");
+                        setState(() {
+                          if (currentPage <= 1) {
+                            currentPage++;
+                            buildPageController();
+                          } else {
+                            Navigator.pushReplacementNamed(
+                                context, SignIn.routeName);
+                          }
+                        });
                       },
                     ),
                     Spacer(),
@@ -73,6 +103,14 @@ class _BodyState extends State<Body> {
           ],
         ),
       ),
+    );
+  }
+
+  void buildPageController() {
+    _pageController.animateToPage(
+      currentPage,
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
     );
   }
 
@@ -93,41 +131,4 @@ class _BodyState extends State<Body> {
 
   bool isCurrentPageEqualPosition({required int position}) =>
       currentPage == position;
-}
-
-class DefaultButton extends StatelessWidget {
-  const DefaultButton({
-    super.key,
-    required this.buttonName,
-    required this.press,
-  });
-
-  final String buttonName;
-  final VoidCallback press;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: getProportionateScreenHeight(56),
-      child: TextButton(
-        style: ButtonStyle(
-          foregroundColor: MaterialStateProperty.all<Color>(kTextWhiteColor),
-          backgroundColor: MaterialStateProperty.all<Color>(kPrimaryColor),
-          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-        ),
-        onPressed: press,
-        child: Text(
-          buttonName,
-          style: TextStyle(
-            fontSize: getProportionateScreenWidth(18),
-          ),
-        ),
-      ),
-    );
-  }
 }
